@@ -36,7 +36,7 @@ class EmployeeModel(db.Model):
 
 
 app = Flask(__name__)
-
+app.config["SECRET_KEY"] = 'fatcock'
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://giabuu:11122003@localhost/test_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
