@@ -2,9 +2,10 @@ from bcolors import bcolors as bgc
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, DateTime
-from datetime import date
+from datetime import date, timedelta
 from forms import ModalForm, TestForm, LoginForm, RegisterForm
 from flask_bootstrap import Bootstrap
+# from flask_login import login_manager, login_required, LoginManager
 
 db = SQLAlchemy()
 
@@ -28,7 +29,7 @@ class UserModel(db.Model):
 class EmployeeModel(db.Model):
     __tablename__ = "employees"  # More descriptive table name
 
-    employee_id = Column(String(100), primary_key=True, autoincrement=True)
+    employee_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)  # Specify max length and not nullable
     dob = Column(DateTime, nullable=False)  # Not nullable
     email = Column(String(255), nullable=False, unique=True)  # Unique email constraint
@@ -63,10 +64,12 @@ class EmployeeModel(db.Model):
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "fatcock"
+app.permanent_session_lifetime = timedelta(hours=1) 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://giabuu:11122003@localhost/test_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 Bootstrap(app)
+# login_manager = LoginManager()
 
 
 @app.route("/form", methods=["GET", "POST"])
@@ -80,45 +83,55 @@ def form():
 
 
 @app.route("/list", methods=["GET", "POST"])
-def employee_list():
-    return_list = db.session.execute(
-        db.select(EmployeeModel).order_by(EmployeeModel.employee_id)
-    ).scalars()
+def list():
+    if 'username' in session:
+        return_list = db.session.execute(db.select(EmployeeModel).order_by(EmployeeModel.employee_id)).scalars() 
+        
+        form = ModalForm() 
+        return render_template("list.html", employees=return_list, form=form)
+    return redirect(url_for("login"))
 
+
+# TODO: create new employee
+@app.route("/list/create", methods=["GET", "POST"])
+def create(): 
     form = ModalForm()
-    if form.validate_on_submit():
-        name = form.name.data
+    if request.method == "POST": 
+        fullname = form.name.data
         dob = form.dob.data
         email = form.email.data
         phone_number = form.phone_number.data
         department = form.department.data
-        emp = EmployeeModel(name, dob, email, phone_number, department)
-        db.session.add(emp)
+        employee = EmployeeModel(fullname, dob, email, phone_number, department)
+        db.session.add(employee)
         db.session.commit()
-        return render_template("list.html", employees=return_list, form=form)
-    return render_template("list.html", employees=return_list, form=form)
-
-
-# TODO: create new employee
-# @app.route("/list/create", methods=["GET", "POST"])
-# def create():
-#     if request.method == "GET":
-#         return render_template("list.html")
-
-#     if request.method == "POST":
-#         return redirect("/list")
+    return redirect(url_for("list")) 
 
 
 # TODO: update existed employee
-@app.route("/list/update")
-def update(): ...
-
+@app.route("/list/update/<int:id>", methods=["GET", "POST"])
+def update(id): 
+    employee = db.session.query(EmployeeModel).get(id)
+    form = ModalForm(obj=employee) 
+    form.populate_obj(employee)
+    db.session.add(employee)
+    db.session.commit()
+    print(bgc.OKGREEN + "it works" + bgc.ENDC)
+    return redirect(url_for("list"))
+   
 
 # TODO: delete existed employee
-@app.route("/list/delete")
-def delete(): ...
-
-
+@app.route("/list/delete/<int:id>", methods=["GET", "POST"])
+# @login_required
+def delete(id):
+    try:
+        employee_to_delete = EmployeeModel.query.get_or_404(id)
+        db.session.delete(employee_to_delete)
+        db.session.commit()
+    except: 
+        return redirect(url_for("list"))
+    return redirect(url_for("list"))
+    
 def get_user(username: str, password: str):
     user = db.one_or_404(
         db.select(UserModel).filter_by(username=username, password=password)
@@ -134,6 +147,7 @@ def login():
         password = login_form.password.data
         user = get_user(username, password)
         if user is not None:
+            session.permanent = True
             session['username'] = username
             return redirect(url_for("home"))
     return render_template("login.html", form=login_form)
@@ -146,11 +160,11 @@ def register():
         user = UserModel(form.username.data, form.email.data, form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash("Thanks for registering")
+        # flash("Thanks for registering")
         return redirect(url_for("login"))
     return render_template("register.html", form=form)
 
-app.route("/logout")
+@app.route("/logout")
 def logout():
     session.pop('username', None)
     return redirect(url_for("login"))
@@ -161,13 +175,6 @@ def home():
     if 'username' in session:  
         return render_template("home.html", user=session['username'])
     return redirect(url_for("login")) 
-
-
-# @app.route("/list")
-# def list():
-#     return_list = (get_employees())
-#     print(bgc.WARNING + str(type(return_list)) + bgc.ENDC)
-#     return render_template("list.html", employees=(return_list))
 
 
 @app.before_request

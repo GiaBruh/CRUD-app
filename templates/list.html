@@ -3,19 +3,20 @@ block content %}
 <div class="container d-flex flex-column">
   <!-- Add new button -->
   <div class="d-flex justify-content-end mb-3 mt-3">
+    <!-- Button trigger modal -->
     <button
       type="button"
       class="btn btn-success"
       data-bs-toggle="modal"
-      data-bs-target="#exampleModal"
+      data-bs-target="#addNewEmployee"
     >
-      Add new employee
+      Create New Employee
     </button>
   </div>
-  <!-- Add new modal -->
+  <!-- Add New Employee Form -->
   <div
     class="modal fade"
-    id="exampleModal"
+    id="addNewEmployee"
     tabindex="-1"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
@@ -23,7 +24,7 @@ block content %}
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Add employee</h1>
+          <h5 class="modal-title" id="exampleModalLabel">Employee Add New</h5>
           <button
             type="button"
             class="btn-close"
@@ -31,78 +32,48 @@ block content %}
             aria-label="Close"
           ></button>
         </div>
-        <div class="modal-body">
-          <!-- Modal form -->
-          <form action="" method="post">
-            <div class="mb-3">
-              <label for="employee-name" class="col-form-label"
-                >Full name:</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="employee-name"
-                name="emp-name"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="employee-birthdate" class="col-form-label"
-                >Birthdate:</label
-              >
-              <input
-                type="date"
-                class="form-control"
-                id="employee-birthdate"
-                name="emp-dob"
-              />
-            </div>
 
+        <form action="{{url_for('create')}}" method="post">
+          <div class="modal-body">
             <div class="mb-3">
-              <label for="employee-email" class="col-form-label">Email:</label>
-              <input
-                type="email"
-                class="form-control"
-                id="employee-email"
-                name="emp-email"
-              />
+              {{ form.name.label(class='form-label') }} {{
+              form.name(class='form-control') }}
             </div>
             <div class="mb-3">
-                <label for="employee-phonenumber" class="col-form-label">Phone number:</label>
-                <input
-                  type="number"
-                  min="0" oninput="this.value = Math.abs(this.value)"
-                  class="form-control"
-                  id="employee-phonenumber"
-                  name="emp-phone"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="employee-department" class="col-form-label">Department:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="employee-department"
-                  name="emp-dep"
-                />
-              </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
-          <button type="submit" class="btn btn-primary submit" name="btn-submit">Save changes</button>
-        </div>
+              {{ form.dob.label(class='form-label') }} {{
+              form.dob(class='form-control') }}
+            </div>
+            <div class="mb-3">
+              {{ form.email.label(class='form-label') }} {{
+              form.email(class='form-control') }}
+            </div>
+            <div class="mb-3">
+              {{ form.phone_number.label(class='form-label') }} {{
+              form.phone_number(class='form-control') }}
+            </div>
+            <div class="mb-3">
+              {{ form.department.label(class='form-label') }} {{
+              form.department(class='form-control') }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            {{ form.submit(class='btn btn-success') }}
+          </div>
+        </form>
       </div>
     </div>
   </div>
-  <table class="table table-responsive table-striped text-center">
+
+  <table class="table table-responsive table-striped">
     <thead>
-      <tr>
+      <tr class="text-center">
         <th scope="col">#</th>
         <th scope="col">EIN</th>
         <th scope="col">Full Name</th>
@@ -116,20 +87,104 @@ block content %}
     <tbody class="">
       {% for emp in employees %}
       <tr class="">
-        <th scope="row" class="align-middle">{{loop.index}}</th>
-        <td class="align-middle">{{ emp.employee_id }}</td>
-        <td class="align-middle">{{ emp.name }}</td>
-        <td class="align-middle">{{ emp.dob }}</td>
-        <td class="align-middle">{{ emp.email }}</td>
-        <td class="align-middle">{{ emp.phone_number }}</td>
-        <td class="align-middle">{{ emp.department }}</td>
-        <td class="align-middle">
-          <div class="btn btn-primary m-1">Update</div>
-          <div class="btn btn-danger btn m-1">Delete</div>
+        <th scope="row" class="align-middle text-center">{{ loop.index }}</th>
+        <td class="align-middle text-center">{{ emp.employee_id }}</td>
+        <td class="align-middle text-center">{{ emp.name }}</td>
+        <td class="align-middle text-center">{{ emp.dob }}</td>
+        <td class="align-middle text-center">{{ emp.email }}</td>
+        <td class="align-middle text-center">{{ emp.phone_number }}</td>
+        <td class="align-middle text-center">{{ emp.department }}</td>
+        <td class="align-middle text-center">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#updateEmployee{{loop.index}}"
+            data-employee-id="{{ emp.employee_id }} "
+          >
+            Update
+          </button>
+
+          <a
+            href="{{ url_for('delete', id=emp.employee_id) }}"
+            class="btn btn-danger"
+            id="del-button"
+            onclick="return confirm('Are you sure you wish to delete?');"
+            >Delete</a
+          >
         </td>
+
+        <!-- Update Employee Form -->
+        <div
+          class="modal fade"
+          id="updateEmployee{{loop.index}}"
+          tabindex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                  Employee Update {{emp.employee_id}}
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+
+              <form
+                action="{{url_for('update', id=emp.employee_id)}}"
+                method="post"
+              >
+                <div class="modal-body">
+                  <input
+                    type="hidden"
+                    name="employee_id"
+                    id="employeeIdInput"
+                  />
+                  <div class="mb-3">
+                    {{ form.name.label(class='form-label') }} {{
+                    form.name(class='form-control') }}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.dob.label(class='form-label') }} {{
+                    form.dob(class='form-control') }}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.email.label(class='form-label') }} {{
+                    form.email(class='form-control') }}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.phone_number.label(class='form-label') }} {{
+                    form.phone_number(class='form-control') }}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.department.label(class='form-label') }} {{
+                    form.department(class='form-control') }}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  {{ form.submit(class='btn btn-success') }}
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+<!-- <script src="{{url_for('static', filename='js/script.js')}}"></scrip> -->
 {% endblock %}
