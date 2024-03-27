@@ -100,18 +100,18 @@ block content %}
             class="btn btn-primary"
             data-bs-toggle="modal"
             data-bs-target="#updateEmployee{{loop.index}}"
-            data-employee-id="{{ emp.employee_id }} "
           >
             Update
           </button>
 
-          <a
-            href="{{ url_for('delete', id=emp.employee_id) }}"
+          <button
+            type="button"
             class="btn btn-danger"
-            id="del-button"
-            onclick="return confirm('Are you sure you wish to delete?');"
-            >Delete</a
+            data-bs-toggle="modal"
+            data-bs-target="#confirmModal{{loop.index}}"
           >
+            Delete
+          </button>
         </td>
 
         <!-- Update Employee Form -->
@@ -160,11 +160,13 @@ block content %}
                   </div>
                   <div class="mb-3">
                     {{ form.phone_number.label(class='form-label') }} {{
-                    form.phone_number(value=emp.phone_number,class='form-control') }}
+                    form.phone_number(value=emp.phone_number,class='form-control')
+                    }}
                   </div>
                   <div class="mb-3">
                     {{ form.department.label(class='form-label') }} {{
-                    form.department(value=emp.department,class='form-control') }}
+                    form.department(value=emp.department,class='form-control')
+                    }}
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -178,6 +180,49 @@ block content %}
                   {{ form.submit(class='btn btn-success') }}
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Confirm Modal -->
+        <div
+          class="modal fade"
+          id="confirmModal{{loop.index}}"
+          tabindex="-1"
+          aria-labelledby="confirmModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">
+                  Please confirm ?
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                Do you want to delete employee #{{emp.employee_id}}
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <a
+                  href="{{ url_for('delete', id=emp.employee_id) }}"
+                  class="btn btn-danger"
+                  id="del-button"
+                  >Confirm</a
+                >
+              </div>
             </div>
           </div>
         </div>
