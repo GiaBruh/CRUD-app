@@ -1,8 +1,8 @@
 from bcolors import bcolors as bgc
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, DateTime
-from datetime import date, timedelta
+from sqlalchemy import Column, Integer, String, Date
+from datetime import date,timedelta
 from forms import ModalForm, TestForm, LoginForm, RegisterForm
 from flask_bootstrap import Bootstrap
 # from flask_login import login_manager, login_required, LoginManager
@@ -31,7 +31,7 @@ class EmployeeModel(db.Model):
 
     employee_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)  # Specify max length and not nullable
-    dob = Column(DateTime, nullable=False)  # Not nullable
+    dob = Column(Date, nullable=False)  # Not nullable
     email = Column(String(255), nullable=False, unique=True)  # Unique email constraint
     phone_number = Column(String(15), nullable=False)
     department = Column(String(255), nullable=False)
@@ -108,7 +108,6 @@ def create():
     return redirect(url_for("list")) 
 
 
-# TODO: update existed employee
 @app.route("/list/update/<int:id>", methods=["GET", "POST"])
 def update(id): 
     employee = db.session.query(EmployeeModel).get(id)
@@ -116,11 +115,10 @@ def update(id):
     form.populate_obj(employee)
     db.session.add(employee)
     db.session.commit()
-    print(bgc.OKGREEN + "it works" + bgc.ENDC)
+    # print(bgc.OKGREEN + "it works" + bgc.ENDC)
     return redirect(url_for("list"))
    
 
-# TODO: delete existed employee
 @app.route("/list/delete/<int:id>", methods=["GET", "POST"])
 # @login_required
 def delete(id):
