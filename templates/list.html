@@ -1,6 +1,16 @@
 {% extends 'base.html' %} {% block title %}List Of Employee{% endblock %} {%
 block content %}
 <div class="container d-flex flex-column">
+  <!-- Alert -->
+  {% with messages = get_flashed_messages(with_categories=True) %} {% if
+  messages %} {% for message in messages %}
+  <div class="alert alert-{{message[0]}} alert-dismissible fade show mt-3" role="alert" id="alert">
+    <i class="bi bi-check-circle-fill">  
+        {{message[1]}}
+     </i> 
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
   <!-- Add new button -->
   <div class="d-flex justify-content-end mb-3 mt-3">
     <!-- Button trigger modal -->
@@ -32,8 +42,7 @@ block content %}
             aria-label="Close"
           ></button>
         </div>
-
-        <form action="{{url_for('create')}}" method="post">
+        <form action="{{ url_for('create') }}" method="post">
           <div class="modal-body">
             <div class="mb-3">
               {{ form.name.label(class='form-label') }} {{
@@ -70,7 +79,6 @@ block content %}
       </div>
     </div>
   </div>
-
   <table class="table table-responsive table-striped">
     <thead>
       <tr class="text-center">
@@ -99,25 +107,23 @@ block content %}
             type="button"
             class="btn btn-primary"
             data-bs-toggle="modal"
-            data-bs-target="#updateEmployee{{loop.index}}"
+            data-bs-target="#updateEmployee{{ loop.index }}"
           >
             Update
           </button>
-
           <button
             type="button"
             class="btn btn-danger"
             data-bs-toggle="modal"
-            data-bs-target="#confirmModal{{loop.index}}"
+            data-bs-target="#confirmModal{{ loop.index }}"
           >
             Delete
           </button>
         </td>
-
         <!-- Update Employee Form -->
         <div
           class="modal fade"
-          id="updateEmployee{{loop.index}}"
+          id="updateEmployee{{ loop.index }}"
           tabindex="-1"
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
@@ -126,7 +132,7 @@ block content %}
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">
-                  Employee Update {{emp.employee_id}}
+                  Employee Update {{ emp.employee_id }}
                 </h5>
                 <button
                   type="button"
@@ -135,9 +141,8 @@ block content %}
                   aria-label="Close"
                 ></button>
               </div>
-
               <form
-                action="{{url_for('update', id=emp.employee_id)}}"
+                action="{{ url_for('update', id=emp.employee_id) }}"
                 method="post"
               >
                 <div class="modal-body">
@@ -183,11 +188,10 @@ block content %}
             </div>
           </div>
         </div>
-
         <!-- Delete Confirm Modal -->
         <div
           class="modal fade"
-          id="confirmModal{{loop.index}}"
+          id="confirmModal{{ loop.index }}"
           tabindex="-1"
           aria-labelledby="confirmModalLabel"
           aria-hidden="true"
@@ -206,7 +210,7 @@ block content %}
                 ></button>
               </div>
               <div class="modal-body">
-                Do you want to delete employee #{{emp.employee_id}}
+                Do you want to delete employee #{{ emp.employee_id }}
               </div>
               <div class="modal-footer">
                 <button
@@ -220,7 +224,7 @@ block content %}
                   href="{{ url_for('delete', id=emp.employee_id) }}"
                   class="btn btn-danger"
                   id="del-button"
-                  >Confirm</a
+                  >Yes, Delete</a
                 >
               </div>
             </div>

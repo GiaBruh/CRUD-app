@@ -1,6 +1,7 @@
-const myModal = document.getElementById('myModal')
-const myInput = document.getElementById('myInput')
-
-myModal.addEventListener('shown.bs.modal', () => {
-  myInput.focus()
-})
+$(document).ready(function () {
+  $("#alert")
+    .fadeTo(3000, 500)
+    .slideUp(500, function () {
+      $("#alert").slideUp(500);
+    });
+});

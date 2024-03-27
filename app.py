@@ -108,6 +108,7 @@ def create():
         employee = EmployeeModel(fullname, dob, email, phone_number, department)
         db.session.add(employee)
         db.session.commit()
+        flash("Employee added successfully!", "success")
     return redirect(url_for("list"))
 
 
@@ -119,6 +120,7 @@ def update(id):
     db.session.add(employee)
     db.session.commit()
     # print(bgc.OKGREEN + "it works" + bgc.ENDC)
+    flash(f'Employee #{id} updated successfully!', "success")
     return redirect(url_for("list"))
 
 
@@ -131,6 +133,7 @@ def delete(id):
         db.session.commit()
     except:
         return redirect(url_for("list"))
+    flash(f'Employee #{id} deleted successfully!', "success")
     return redirect(url_for("list"))
 
 
